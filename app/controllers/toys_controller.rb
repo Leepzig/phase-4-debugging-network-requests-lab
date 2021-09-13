@@ -1,5 +1,6 @@
 class ToysController < ApplicationController
   wrap_parameters format: []
+  before_action :find_toy, only: [:update, :destroy, :like]
 
   def index
     toys = Toy.all
@@ -7,19 +8,23 @@ class ToysController < ApplicationController
   end
 
   def create
-    toy = Toys.create(toy_params)
+    toy = Toy.create(toy_params)
     render json: toy, status: :created
   end
 
   def update
-    toy = Toy.find_by(id: params[:id])
-    toy.update(toy_params)
+    @toy.update(toy_params)
+    render json: @toy
   end
 
   def destroy
-    toy = Toy.find_by(id: params[:id])
-    toy.destroy
+    @toy.destroy
     head :no_content
+  end
+
+  def like
+    @toy.update(likes: @toy.likes += 1)
+    render json: @toy
   end
 
   private
@@ -28,4 +33,7 @@ class ToysController < ApplicationController
     params.permit(:name, :image, :likes)
   end
 
+  def find_toy
+    @toy = Toy.find_by(id: params[:id])
+  end
 end
